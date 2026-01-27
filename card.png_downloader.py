@@ -4,7 +4,7 @@ import requests
 import os
 
 url = "https://deckofcardsapi.com/static/img/"
-values = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "J", "Q", "K", "A"]
+values = ["2", "3", "4", "5", "6", "7", "8", "9", "0", "J", "Q", "K", "A"]
 suits = ["H", "D", "C", "S"]
 folder = "cards"
 os.makedirs(folder, exist_ok=True)
