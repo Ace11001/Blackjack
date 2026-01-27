@@ -15,7 +15,7 @@ def introText(hasDESC):
 
 def update_title():
     global playerChips
-    title = f"Blackjack | Chips: {playerChips}"
+    title = f"Blackjack//Current chips: {playerChips}"
     if platform.system() == "Windows":
         os.system(f"title {title}")
     else:
@@ -24,7 +24,9 @@ def update_title():
 
 def play_round():
     global playerHand, dealerHand, playerChips, deck_id, deck, remaining_cards, currentDeckURL, autoplay
-    clear_screen()
+    playerHand.clear()
+    dealerHand.clear()
+    clear_screen(autoclear)
     introText(False)
 
     bet = int(input("Insert bet amount(current chips: " + Fore.GREEN + f"{playerChips}" + Style.RESET_ALL + "):"))
@@ -50,7 +52,7 @@ def play_round():
     displayHand(dealerHand, togSUM)
     print("")
 
-    # innitial Blackjack check
+    # initial Blackjack check
     if isBlackjack(playerHand):
         print("Blackjack!  You won!")
         playerChips += int(playerStake * 1.5)
@@ -87,13 +89,9 @@ def play_round():
         currentDeckURL = f"https://deckofcardsapi.com/api/deck/{deck_id}/draw/?count=1"
         print("")
 
-    if autoplay == False:
+    if not autoplay:
         print("to play again> play")
-
-    playerHand.clear()
-    dealerHand.clear()
-
-    if autoplay:
+    else:
         print(f"next round starting in 3")
         time.sleep(1.1)
         print(f"next round starting in 2")
@@ -163,7 +161,7 @@ def stake(num):
 def displayHand(arr, Bool):
     for card in arr:
         print(card[3], "of", card[1])
-    if Bool == True:
+    if Bool:
         print("  Hand Value:" + Fore.YELLOW + str(HandSum(arr)) + Style.RESET_ALL)
 
 def checkWinner():
@@ -196,54 +194,87 @@ def dealerLogic():
     print("")
     checkWinner()
 
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
+def clear_screen(Bool):
+    if Bool:
+        os.system('cls' if os.name == 'nt' else 'clear')
 
 # command line functions
-def help():
+def help1():
     print("  help cmd    :list of valid commands")
     print("  help rls    :displays the Blackjack rules")
-
 def helpCMD():
     print(Fore.CYAN + "Commands:" + Style.RESET_ALL)
     print("  play    :starts a round")
     print("  quit    :quits the game")
     print("  clear   :clears the terminal")
     print("  tog     :opens game config")
-
 def helpRLS():
     print(Fore.RED + "Rules:" + Style.RESET_ALL)
-    print("  Dealer must draw untill soft 17")
+    print("  Dealer must draw until soft 17")
     print("  Blackjack pays" + Fore.YELLOW + " 3:2" + Style.RESET_ALL)
-
 
 def toggleCMD():
     print("  tog sum    :if ON: Displaying player/dealer's hands also display the sum of the hand value")
-    print("  tog auto   :if ON: Auto starts a new round 3 seconds after finishing a round")
-    print("              to leave autoplay enter 0 when prompted to enter bet ammount")
-
+    print("  tog auto   :if ON: Automatically starts a new round 3 seconds after finishing a round")
+    print("                     To leave autoplay enter 0 when prompted to enter bet amount")
+    print("  tog clear  :if ON: Automatically clears the terminal after starting a new round")
 def toggleSUM():
     global togSUM
     togSUM = not togSUM
     print(f"Hand sum is {'ON' if togSUM else 'OFF'}")
-
 def toggleAUTO():
     global autoplay
     autoplay = not autoplay
     print(f"autoplay is {'ON' if autoplay else 'OFF'}")
-
+def toggleClear():
+    global autoclear
+    autoclear = not autoclear
+    print(f"autoclear is {'ON' if autoclear else 'OFF'}")
 
 # debug command line functions
 def hiddenCMD():
-    print(Fore.RED + "  cheats chips -db   :add chips" + Style.RESET_ALL)
-
+    print(Fore.RED+"  cheats chips    :add chips"+Style.RESET_ALL)
+    print(Fore.RED+"  reset           :Resets chips and reshuffles Deck"+Style.RESET_ALL)
+    print(Fore.RED+"  api debug       :Prints variables related to the api"+Style.RESET_ALL)
+    print(Fore.RED+"  player debug    :Prints variables related to the player"+Style.RESET_ALL)
+    print(Fore.RED+"  dealer debug    :Prints variables related to the dealer"+Style.RESET_ALL)
 def cheatCHIPS():
     global playerChips
-    playerChips += int(input("  Enter chip ammount:"))
+    playerChips += int(input("  Enter chip amount:"))
+def resetCMD():
+    global playerChips,deck,deck_id,remaining_cards,currentDeckURL
+    playerChips = 1000
+    shuffleDeck()
+    deck = shuffleDeck()
+    deck_id = deck['deck_id']
+    remaining_cards = deck['remaining']
+    currentDeckURL = f"https://deckofcardsapi.com/api/deck/{deck_id}/draw/?count=1"
+
+def apiDBG():
+    global deck_id, remaining_cards, currentDeckURL
+    print(f"  Deck ID:{deck_id}")
+    print(f"  Remaining cards:{remaining_cards}")
+    print(f"  Current deck URL:{currentDeckURL}")
+def plyDBG():
+    global playerChips, playerStake, playerHand, autoplay, togSUM
+    print(f"  Player Chips:{playerChips}")
+    print(f"  Player Stake:{playerStake}")
+    print(f"  Player Hand:")
+    for x in playerHand:
+        print("    "+str(x))
+    print(f"  Autoplay:{autoplay}")
+    print(f"  AutoSum:{togSUM}")
+def dlrDBG():
+    global dealerHand
+    print("  Dealer draws until soft 17")
+    print("  Dealer Hand:")
+    for x in dealerHand:
+        print("    "+str(x))
 
 # setup
 togSUM = False
 autoplay = False
+autoclear = False
 
 playerHand = []
 dealerHand = []
@@ -257,10 +288,10 @@ currentDeckURL = f"https://deckofcardsapi.com/api/deck/{deck_id}/draw/?count=1"
 
 commands = {
     # basic
-    "help": help,
+    "help": help1,
     "play": play_round,
-    "quit": lambda: exit(),
-    "clear": clear_screen,
+    "quit": exit,
+    "clear": lambda: clear_screen(True),
     "tog": toggleCMD,
     "hidden": hiddenCMD,
     # less so
@@ -268,7 +299,12 @@ commands = {
     "help rls": helpRLS,
     "tog sum": toggleSUM,
     "tog auto": toggleAUTO,
-    "cheats chips -db": cheatCHIPS,
+    #hidden
+    "cheats chips": cheatCHIPS,
+    "reset":resetCMD,
+    "api debug": apiDBG,
+    "player debug": plyDBG,
+    "dealer debug": dlrDBG,
 }
 # Game Loop
 introText(True)
