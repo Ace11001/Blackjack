@@ -2,7 +2,8 @@ import requests
 from colorama import Fore, Back, Style
 import os
 import time
-
+import sys
+import platform
 # functions
 def introText(hasDESC):
     # Text interface --start
@@ -13,7 +14,13 @@ def introText(hasDESC):
             Fore.LIGHTGREEN_EX + "Updated version ~ improved command line ~ if unsure how to play type:> help" + Style.RESET_ALL)
 
 def update_title():
-    os.system(f"title Blackjack - Chips: {playerChips}")
+    global playerChips
+    title = f"Blackjack | Chips: {playerChips}"
+    if platform.system() == "Windows":
+        os.system(f"title {title}")
+    else:
+        sys.stdout.write(f"\033]0;{title}\007")
+        sys.stdout.flush()
 
 def play_round():
     global playerHand, dealerHand, playerChips, deck_id, deck, remaining_cards, currentDeckURL, autoplay
@@ -93,6 +100,7 @@ def play_round():
         time.sleep(1.1)
         print(f"next round starting in 1")
         time.sleep(1.1)
+        play_round()
 
 def shuffleDeck():
     shuffleURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1'
