@@ -29,7 +29,17 @@ def play_round():
     clear_screen(autoclear)
     introText(False)
 
-    bet = int(input("Insert bet amount(current chips: " + Fore.GREEN + f"{playerChips}" + Style.RESET_ALL + "):"))
+    while True:
+        bet = input("Insert bet amount(current chips: " + Fore.GREEN + f"{playerChips}" + Style.RESET_ALL + "):")
+        try:
+            bet = int(bet)
+            break
+        except ValueError:
+            if bet == "quit":
+                return
+            else:
+                print(f"{bet} is not a valid number")
+
     if bet == 0:
         return
     if bet < 0 or bet > playerChips:
