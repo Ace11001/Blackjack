@@ -89,9 +89,7 @@ def play_round():
         currentDeckURL = f"https://deckofcardsapi.com/api/deck/{deck_id}/draw/?count=1"
         print("")
 
-    if not autoplay:
-        print("to play again> play")
-    else:
+    if autoplay:
         print(f"next round starting in 3")
         time.sleep(1.1)
         print(f"next round starting in 2")
@@ -299,6 +297,7 @@ commands = {
     "help rls": helpRLS,
     "tog sum": toggleSUM,
     "tog auto": toggleAUTO,
+    "tog clear": toggleClear,
     #hidden
     "cheats chips": cheatCHIPS,
     "reset":resetCMD,
